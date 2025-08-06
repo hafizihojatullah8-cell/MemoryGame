@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Memory Match Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    #ad-placeholder {
+      background: #ddd;
+      padding: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 80px);
+      grid-gap: 10px;
+      justify-content: center;
+      margin: 0 auto;
+    }
+
+    .card {
+      width: 80px;
+      height: 80px;
+      background-color: #007acc;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      cursor: pointer;
+      border-radius: 6px;
+      user-select: none;
+    }
+
+    .flipped {
+      background-color: #fff;
+      color: #007acc;
+      border: 2px solid #007acc;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #444;
+    }
+
+    #restart-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #restart-btn:hover {
+      background-color: #005f99;
+    }
+  </style>
+</head>
+<body>
+  <h1>Memory Match Game</h1>
+
+  <div id="ad-placeholder">
+    [ Your Ad Here – Google AdSense placeholder ]
+  </div>
+
+  <div id="game-board"></div>
+
+  <div id="status">Score: <span id="score">0</span></div>
+  <button id="restart-btn">Restart Game</button>
+
+  <script>
+    const board = document.getElementById('game-board');
+    const scoreSpan = document.getElementById('score');
+    const restartBtn = document.getElementById('restart-btn');
+
+    let score = 0;
+    let flippedCards = [];
+    let matchedPairs = 0;
+    const symbols = ['🍎','🍌','🍒','🍇','🍓','🥝','🍍','🍉'];
+    let cards = [];
+
+    function shuffle(array) {
+      return array.concat(array).sort(() => 0.5 - Math.random());
+    }
+
+    function initGame() {
+      board.innerHTML = '';
+      score = 0;
+      matchedPairs = 0;
+      flippedCards = [];
+      scoreSpan.textContent = score;
+      cards = shuffle(symbols).map(symbol => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.dataset.symbol = symbol;
+        div.textContent = '';
+        div.addEventListener('click', handleCardClick);
+        return div;
+      });
+      cards.forEach(card => board.appendChild(card));
+    }
+
+    function handleCardClick(e) {
+      const card = e.target;
+      if (flippedCards.length < 2 && !card.classList.contains('flipped')) {
+        card.textContent = card.dataset.symbol;
+        card.classList.add('flipped');
+        flippedCards.push(card);
+
+        if (flippedCards.length === 2) {
+          checkMatch();
+        }
+      }
+    }
+
+    function checkMatch() {
+      const [card1, card2] = flippedCards;
+      if (card1.dataset.symbol === card2.dataset.symbol) {
+        matchedPairs++;
+        score += 10;
+        flippedCards = [];
+        if (matchedPairs === symbols.length) {
+          setTimeout(() => alert('Congratulations! You matched all cards!'), 300);
+        }
+      } else {
+        setTimeout(() => {
+          card1.classList.remove('flipped');
+          card2.classList.remove('flipped');
+          card1.textContent = '';
+          card2.textContent = '';
+          flippedCards = [];
+        }, 800);
+      }
+      scoreSpan.textContent = score;
+    }
+
+    restartBtn.addEventListener('click', initGame);
+
+    window.onload = initGame;
+  </script>
+</body>
+</html>
