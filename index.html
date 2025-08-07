@@ -1,161 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="monetag" content="a4cc16001e39145f7ca659f479a4ef09">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="monetag" content="a4cc16001e39145f7ca659f479a4ef09" />
   <title>Memory Game</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-
-    h1 {
-      background-color: #4CAF50;
-      color: white;
-      margin: 0;
-      padding: 20px 0;
-    }
-
-    #game-board {
-      display: grid;
-      grid-template-columns: repeat(4, 100px);
-      grid-gap: 10px;
-      justify-content: center;
-      margin-top: 30px;
-    }
-
-    .card {
-      width: 100px;
-      height: 100px;
-      background-color: #ddd;
-      font-size: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      border-radius: 8px;
-      user-select: none;
-    }
-
-    .card.flipped {
-      background-color: #fff;
-      border: 2px solid #4CAF50;
-    }
-
-    #score {
-      margin-top: 20px;
-      font-size: 20px;
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    footer {
-      margin-top: 40px;
-      padding: 20px;
-      background-color: #eee;
-      font-size: 14px;
-      color: #333;
-    }
-
-    footer a {
-      color: #4CAF50;
-      margin: 0 10px;
-      text-decoration: none;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
-    }
+    body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; text-align: center; }
+    h1 { padding: 20px; color: white; background: #4CAF50; margin: 0; }
+    #game-board { display: grid; grid-template-columns: repeat(4, 100px); grid-gap: 10px; justify-content: center; margin: 20px auto; }
+    .card { width: 100px; height: 100px; background: #ddd; font-size: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 8px; user-select: none; }
+    .card.flipped { background: #fff; border: 2px solid #4CAF50; }
+    #score { font-size: 18px; margin: 10px; }
+    button { padding: 10px 20px; margin-bottom: 20px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    footer { background: #eee; padding: 15px; margin-top: 20px; font-size: 14px; }
+    footer a { color: #4CAF50; margin: 0 8px; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <h1>Memory Game</h1>
-
   <div id="game-board"></div>
-
   <div id="score">Score: 0</div>
   <button onclick="startGame()">Restart Game</button>
 
   <footer>
-    <p>&copy; 2025 Hojatullah Hafizi</p>
-    <p>
-      <a href="#">About</a> |
-      <a href="#">Privacy</a> |
-      <a href="#">Contact</a>
-    </p>
+    <nav>
+      <a href="about.html">About</a> |
+      <a href="privacy.html">Privacy Policy</a> |
+      <a href="contact.html">Contact</a>
+    </nav>
+    <p>&copy; 2025 Memory Game</p>
   </footer>
 
   <script>
-    const symbols = ["🍎", "🍌", "🍇", "🍒", "🍉", "🍓", "🍍", "🥝"];
-    let cards = [];
-    let flippedCards = [];
-    let matchedCards = [];
-    let score = 0;
+    const symbols = ["🍎","🍌","🍇","🍒","🍉","🍓","🍍","🥝"];
+    let cards = [], flippedCards = [], matched = [], score = 0;
 
     function startGame() {
       const board = document.getElementById("game-board");
       board.innerHTML = "";
-      score = 0;
+      flippedCards = []; matched = []; score = 0;
       document.getElementById("score").innerText = "Score: 0";
-      flippedCards = [];
-      matchedCards = [];
-
-      // Duplicate and shuffle
-      cards = [...symbols, ...symbols];
-      cards.sort(() => 0.5 - Math.random());
-
-      cards.forEach((symbol, index) => {
+      cards = symbols.concat(symbols).sort(() => 0.5 - Math.random());
+      cards.forEach((sym,i) => {
         const card = document.createElement("div");
-        card.classList.add("card");
-        card.dataset.symbol = symbol;
-        card.dataset.index = index;
+        card.className = "card";
+        card.dataset.sym = sym;
         card.addEventListener("click", flipCard);
-        board.appendChild(card);
+        board.append(card);
       });
     }
 
     function flipCard() {
-      if (flippedCards.length === 2 || this.classList.contains("flipped") || matchedCards.includes(this.dataset.index)) return;
-
+      if (flippedCards.length === 2 || this.classList.contains("flipped")) return;
       this.classList.add("flipped");
-      this.textContent = this.dataset.symbol;
+      this.textContent = this.dataset.sym;
       flippedCards.push(this);
-
-      if (flippedCards.length === 2) {
-        setTimeout(checkMatch, 700);
-      }
+      if (flippedCards.length === 2) setTimeout(checkMatch, 700);
     }
 
     function checkMatch() {
-      const [card1, card2] = flippedCards;
-      if (card1.dataset.symbol === card2.dataset.symbol) {
-        matchedCards.push(card1.dataset.index, card2.dataset.index);
+      const [c1,c2]=flippedCards;
+      if (c1.dataset.sym === c2.dataset.sym) {
+        matched.push(c1);
         score++;
         document.getElementById("score").innerText = `Score: ${score}`;
       } else {
-        card1.classList.remove("flipped");
-        card1.textContent = "";
-        card2.classList.remove("flipped");
-        card2.textContent = "";
+        c1.classList.remove("flipped"); c1.textContent = "";
+        c2.classList.remove("flipped"); c2.textContent = "";
       }
       flippedCards = [];
     }
 
-    // Start when page loads
     window.onload = startGame;
   </script>
 </body>
